@@ -3,7 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useCreateQuotation, useListProducts } from "@workspace/api-client-react";
+import { useCreateQuotation, useListProducts } from "@/lib/supabase-data";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -42,7 +42,8 @@ export default function Quote() {
   const prefillProductIds = prefillProductId ? [parseInt(prefillProductId)] : [];
 
   const { data: products } = useListProducts({ visible: true });
-  const prefillProduct = products?.find(p => p.id === parseInt(prefillProductId || "0"));
+  const productList = Array.isArray(products) ? products : [];
+  const prefillProduct = productList.find(p => p.id === parseInt(prefillProductId || "0"));
 
   const form = useForm<z.infer<typeof quoteFormSchema>>({
     resolver: zodResolver(quoteFormSchema),

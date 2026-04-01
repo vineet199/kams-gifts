@@ -286,7 +286,10 @@ function inferResponseType(response: Response): "json" | "text" | "blob" {
   const mediaType = getMediaType(response.headers);
 
   if (isJsonMediaType(mediaType)) return "json";
-  if (isTextMediaType(mediaType) || mediaType == null) return "text";
+  // Most API routes in this workspace return JSON bodies, and some environments
+  // may omit the content-type header. Prefer JSON by default for API clients.
+  if (mediaType == null) return "json";
+  if (isTextMediaType(mediaType)) return "text";
   return "blob";
 }
 

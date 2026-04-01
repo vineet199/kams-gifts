@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Building2, Briefcase, FileText, CheckCircle2, Package } from "lucide-react";
 import { Link } from "wouter";
-import { useGetProductStats, useListCategories, useListProducts } from "@workspace/api-client-react";
+import { useGetProductStats, useListCategories, useListProducts } from "@/lib/supabase-data";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -12,7 +12,8 @@ export default function Home() {
   const { data: categories } = useListCategories();
   const { data: featuredProducts } = useListProducts({ visible: true });
 
-  const displayProducts = featuredProducts?.slice(0, 4) || [];
+  const products = Array.isArray(featuredProducts) ? featuredProducts : [];
+  const displayProducts = products.slice(0, 4);
 
   return (
     <div className="flex min-h-[100dvh] flex-col">
@@ -116,12 +117,12 @@ export default function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { name: "Premium Bags", icon: Briefcase, desc: "Briefcases, backpacks & travel", img: "/bag.png" },
-                { name: "Stationery", icon: FileText, desc: "Notebooks, pens & folios", img: "/stationery.png" },
-                { name: "Tech Accessories", icon: Building2, desc: "Power banks & organizers", img: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=2070&auto=format&fit=crop" },
-                { name: "Drinkware", icon: CheckCircle2, desc: "Tumblers & mugs", img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=2070&auto=format&fit=crop" },
+                { name: "laptop bags", slug: "laptop-bags", icon: Briefcase, desc: "Office-ready laptop bags", img: "/bag.png" },
+                { name: "Bagpacks", slug: "bagpacks", icon: FileText, desc: "Everyday and travel backpacks", img: "/stationery.png" },
+                { name: "Travle Bags", slug: "travle-bags", icon: Building2, desc: "Corporate travel essentials", img: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?q=80&w=2070&auto=format&fit=crop" },
+                { name: "Flasks Mug/glass", slug: "flasks-mug-glass", icon: CheckCircle2, desc: "Drinkware gifting options", img: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?q=80&w=2070&auto=format&fit=crop" },
               ].map((cat, i) => (
-                <Link key={i} href={`/catalog?category=${cat.name.toLowerCase()}`} className="group relative overflow-hidden rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 block h-[300px]">
+                <Link key={i} href={`/catalog?category=${cat.slug}`} className="group relative overflow-hidden rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 block h-[300px]">
                   <img src={cat.img} alt={cat.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/40 to-transparent transition-opacity group-hover:opacity-90"></div>
                   <div className="absolute inset-0 p-6 flex flex-col justify-end">

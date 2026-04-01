@@ -10,8 +10,9 @@ import {
   useListCategories,
   getListProductsQueryKey,
   getGetProductStatsQueryKey,
-  getListQuotationsQueryKey
-} from "@workspace/api-client-react";
+  getListQuotationsQueryKey,
+  uploadProductImage,
+} from "@/lib/supabase-data";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ import { Package, TrendingUp, Users, Eye, EyeOff, Edit, Trash2, Plus, AlertCircl
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { SUPPORTED_CATEGORIES } from "@/lib/categories";
 
 // Schema for product form
 const productSchema = z.object({
@@ -55,6 +57,14 @@ export default function Admin() {
   const { data: products } = useListProducts();
   const { data: quotations } = useListQuotations();
   const { data: categories } = useListCategories();
+  const productList = Array.isArray(products) ? products : [];
+  const quotationList = Array.isArray(quotations) ? quotations : [];
+  const categoryList = Array.isArray(categories) ? categories : [];
+  const mergedCategoryList = SUPPORTED_CATEGORIES.map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    productCount: categoryList.find((x) => x.slug === c.slug)?.productCount ?? 0,
+  }));
   
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
@@ -63,6 +73,8 @@ export default function Admin() {
 
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -80,8 +92,8 @@ export default function Admin() {
 
   // When edit mode changes, reset form
   useEffect(() => {
-    if (editingProductId && products) {
-      const product = products.find(p => p.id === editingProductId);
+    if (editingProductId && productList.length) {
+      const product = productList.find(p => p.id === editingProductId);
       if (product) {
         form.reset({
           name: product.name,
@@ -95,6 +107,7 @@ export default function Admin() {
           stockStatus: product.stockStatus as any,
           imageUrl: product.imageUrl,
         });
+        setSelectedImageFile(null);
       }
     } else {
       form.reset({
@@ -109,16 +122,35 @@ export default function Admin() {
         stockStatus: "in_stock",
         imageUrl: "",
       });
+      setSelectedImageFile(null);
     }
-  }, [editingProductId, products, form]);
+  }, [editingProductId, productList, form]);
 
-  const onProductSubmit = (values: ProductFormValues) => {
+  const onProductSubmit = async (values: ProductFormValues) => {
     // Find category name from slug
-    const category = categories?.find(c => c.slug === values.categorySlug)?.name || values.categorySlug;
+    const category = mergedCategoryList.find(c => c.slug === values.categorySlug)?.name || values.categorySlug;
+
+    let imageUrl = values.imageUrl ?? null;
+    if (selectedImageFile) {
+      setIsUploadingImage(true);
+      try {
+        imageUrl = await uploadProductImage(selectedImageFile);
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Image upload failed",
+          description: "Could not upload image to Supabase Storage.",
+        });
+        setIsUploadingImage(false);
+        return;
+      }
+      setIsUploadingImage(false);
+    }
 
     const payload = {
       ...values,
       category,
+      imageUrl,
     };
 
     if (editingProductId) {
@@ -221,7 +253,7 @@ export default function Admin() {
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger></FormControl>
                             <SelectContent>
-                              {categories?.map(c => <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>)}
+                              {mergedCategoryList.map(c => <SelectItem key={c.slug} value={c.slug}>{c.name}</SelectItem>)}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -260,11 +292,23 @@ export default function Admin() {
                           <FormMessage />
                         </FormItem>
                       )} />
-                      <FormField control={form.control} name="imageUrl" render={({ field }) => (
-                        <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+                      <FormField control={form.control} name="imageUrl" render={() => (
+                        <FormItem>
+                          <FormLabel>Product Image (Optional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0] ?? null;
+                                setSelectedImageFile(file);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )} />
-                    </div>
-
+                  </div>
                     <div className="flex gap-8 py-4 px-2 border rounded-md bg-muted/20">
                       <FormField control={form.control} name="isVisible" render={({ field }) => (
                         <FormItem className="flex flex-row items-center gap-3 space-y-0">
@@ -282,7 +326,9 @@ export default function Admin() {
 
                     <div className="pt-4 flex justify-end gap-2">
                       <Button type="button" variant="outline" onClick={() => setIsProductModalOpen(false)}>Cancel</Button>
-                      <Button type="submit" disabled={createProduct.isPending || updateProduct.isPending}>Save Product</Button>
+                      <Button type="submit" disabled={createProduct.isPending || updateProduct.isPending || isUploadingImage}>
+                        {isUploadingImage ? "Uploading image..." : "Save Product"}
+                      </Button>
                     </div>
                   </form>
                 </Form>
@@ -324,7 +370,7 @@ export default function Admin() {
                 <div className="p-3 bg-secondary/20 rounded-full text-secondary"><Users className="h-6 w-6" /></div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Inquiries</p>
-                  <h3 className="text-2xl font-bold font-serif text-primary">{quotations?.length || 0}</h3>
+                  <h3 className="text-2xl font-bold font-serif text-primary">{quotationList.length}</h3>
                 </div>
               </CardContent>
             </Card>
@@ -351,7 +397,7 @@ export default function Admin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products?.map((product) => (
+                      {productList.map((product) => (
                         <TableRow key={product.id}>
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-3">
@@ -396,7 +442,7 @@ export default function Admin() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!products?.length && (
+                      {!productList.length && (
                         <TableRow>
                           <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                             No products found. Add your first product to get started.
@@ -423,7 +469,7 @@ export default function Admin() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {quotations?.map((quote) => (
+                      {quotationList.map((quote) => (
                         <TableRow key={quote.id}>
                           <TableCell className="whitespace-nowrap">{new Date(quote.createdAt).toLocaleDateString()}</TableCell>
                           <TableCell>
@@ -458,7 +504,7 @@ export default function Admin() {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {!quotations?.length && (
+                      {!quotationList.length && (
                         <TableRow>
                           <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                             No quotation requests yet.

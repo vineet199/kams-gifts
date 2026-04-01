@@ -1,0 +1,15 @@
+export const SUPPORTED_CATEGORIES = [
+  { name: "Flasks Mug/glass", slug: "flasks-mug-glass" },
+  { name: "laptop bags", slug: "laptop-bags" },
+  { name: "Bagpacks", slug: "bagpacks" },
+  { name: "Travle Bags", slug: "travle-bags" },
+  { name: "Table clocks and wall clocks", slug: "table-clocks-and-wall-clocks" },
+  { name: "diaries calendars notebooks", slug: "diaries-calendars-notebooks" },
+  { name: "Leaether wallets and leather bags", slug: "leaether-wallets-and-leather-bags" },
+  { name: "Pen and Pen sets", slug: "pen-and-pen-sets" },
+  { name: "Key chains", slug: "key-chains" },
+  { name: "notebooks", slug: "notebooks" },
+  { name: "visiting card holders", slug: "visiting-card-holders" },
+  { name: "Gift sets", slug: "gift-sets" },
+  { name: "Novelties", slug: "novelties" },
+] as const;

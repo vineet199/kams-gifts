@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { useListProducts, useListCategories } from "@workspace/api-client-react";
+import { useListProducts, useListCategories } from "@/lib/supabase-data";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,8 @@ export default function Catalog() {
   });
 
   const { data: categories } = useListCategories();
+  const productList = Array.isArray(products) ? products : [];
+  const categoryList = Array.isArray(categories) ? categories : [];
 
   const getStockBadge = (status: string) => {
     switch (status) {
@@ -62,7 +64,7 @@ export default function Catalog() {
           >
             All Categories
           </button>
-          {categories?.map((cat) => (
+          {categoryList.map((cat) => (
             <button
               key={cat.slug}
               onClick={() => setCategory(cat.slug)}
@@ -168,7 +170,7 @@ export default function Catalog() {
                   </div>
                 ))}
               </div>
-            ) : products?.length === 0 ? (
+            ) : productList.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center border rounded-lg bg-muted/20 border-dashed">
                 <Package className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
                 <h3 className="font-serif text-xl font-medium text-foreground mb-2">No products found</h3>
@@ -187,7 +189,7 @@ export default function Catalog() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products?.map((product) => (
+                {productList.map((product) => (
                   <Card key={product.id} className="overflow-hidden border-border flex flex-col group hover:border-primary/30 hover:shadow-md transition-all">
                     <div className="aspect-[4/3] bg-muted relative overflow-hidden">
                       {product.imageUrl ? (
