@@ -165,10 +165,8 @@ export default function Home() {
                   <CardContent className="p-5">
                     <h3 className="font-bold text-lg text-primary line-clamp-1">{product.name}</h3>
                     <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{product.description}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <div className="font-serif font-semibold text-lg text-primary">
-                        ${product.basePrice.toFixed(2)}
-                      </div>
+                    <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-4">
+                      <p className="text-xs text-muted-foreground italic">Price on request</p>
                       <Link href="/quote" className="text-sm font-medium text-secondary hover:text-secondary/80 transition-colors">
                         Inquire
                       </Link>

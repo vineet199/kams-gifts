@@ -210,18 +210,8 @@ export default function Catalog() {
                       <h3 className="font-serif font-bold text-xl text-primary line-clamp-1 mb-2">{product.name}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{product.description}</p>
                       
-                      <div className="flex items-end justify-between mt-auto pt-4 border-t border-border/50">
-                        <div>
-                          {product.discountPrice ? (
-                            <div className="flex flex-col">
-                              <span className="text-sm text-muted-foreground line-through">${product.basePrice.toFixed(2)}</span>
-                              <span className="font-serif font-semibold text-lg text-primary">${product.discountPrice.toFixed(2)}</span>
-                            </div>
-                          ) : (
-                            <span className="font-serif font-semibold text-lg text-primary">${product.basePrice.toFixed(2)}</span>
-                          )}
-                          <div className="text-xs text-muted-foreground mt-0.5">Base Price</div>
-                        </div>
+                      <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/50">
+                        <p className="text-xs text-muted-foreground italic">Price on request</p>
                         <Link href={`/quote?product=${product.id}`}>
                           <Button size="sm" variant="outline" className="h-8 border-primary text-primary hover:bg-primary hover:text-white">
                             Inquire
