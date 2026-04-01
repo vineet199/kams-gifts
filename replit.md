@@ -16,6 +16,19 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
 
+## Artifacts
+
+### `artifacts/corporate-gifts` (`@workspace/corporate-gifts`)
+
+Corporate Gifts Showcase — a B2B inventory showcase website for a business selling corporate gifts, bags, stationery, and accessories.
+
+- **Homepage** with hero, category grid, featured products, stats, and contact CTA
+- **Catalog** (`/catalog`) — browse all 34 products across 15 categories with search/filter sidebar
+- **Admin Panel** (`/admin`) — manage products (CRUD), pricing, negotiation settings, visibility, and quotation requests
+- **Quote Page** (`/quote`) — customer quotation/inquiry form
+- Theme: deep navy and gold, professional B2B style
+- Uses framer-motion for animations, wouter for routing
+
 ## Structure
 
 ```text

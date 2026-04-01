@@ -1,15 +1,20 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Corporate Gifts Inventory API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Product operations
+  - name: categories
+    description: Category operations
+  - name: quotations
+    description: Quotation/inquiry operations
 paths:
   /healthz:
     get:
@@ -24,6 +29,202 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category slug
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by name or description
+        - name: visible
+          in: query
+          schema:
+            type: boolean
+          description: Filter by visibility
+        - name: negotiable
+          in: query
+          schema:
+            type: boolean
+          description: Filter by negotiable status
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductBody"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a single product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+    put:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductBody"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List all categories with product counts
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryWithCount"
+
+  /products/stats/summary:
+    get:
+      operationId: getProductStats
+      tags: [products]
+      summary: Get product stats summary
+      responses:
+        "200":
+          description: Stats summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductStats"
+
+  /quotations:
+    get:
+      operationId: listQuotations
+      tags: [quotations]
+      summary: List all quotation requests
+      responses:
+        "200":
+          description: List of quotations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Quotation"
+    post:
+      operationId: createQuotation
+      tags: [quotations]
+      summary: Submit a quotation request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuotationBody"
+      responses:
+        "201":
+          description: Created quotation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quotation"
+
+  /quotations/{id}:
+    put:
+      operationId: updateQuotation
+      tags: [quotations]
+      summary: Update quotation status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateQuotationBody"
+      responses:
+        "200":
+          description: Updated quotation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quotation"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +235,256 @@ components:
       required:
         - status
 
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        categorySlug:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        basePrice:
+          type: number
+        discountPrice:
+          type: number
+          nullable: true
+        minNegotiationPrice:
+          type: number
+          nullable: true
+        isNegotiable:
+          type: boolean
+        isVisible:
+          type: boolean
+        stockStatus:
+          type: string
+          enum: [in_stock, low_stock, out_of_stock]
+        notes:
+          type: string
+          nullable: true
+        bulkPricingNotes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - description
+        - category
+        - categorySlug
+        - basePrice
+        - isNegotiable
+        - isVisible
+        - stockStatus
+        - createdAt
+        - updatedAt
+
+    CreateProductBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        categorySlug:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        basePrice:
+          type: number
+        discountPrice:
+          type: number
+          nullable: true
+        minNegotiationPrice:
+          type: number
+          nullable: true
+        isNegotiable:
+          type: boolean
+        isVisible:
+          type: boolean
+        stockStatus:
+          type: string
+          enum: [in_stock, low_stock, out_of_stock]
+        notes:
+          type: string
+          nullable: true
+        bulkPricingNotes:
+          type: string
+          nullable: true
+      required:
+        - name
+        - description
+        - category
+        - categorySlug
+        - basePrice
+        - isNegotiable
+        - isVisible
+        - stockStatus
+
+    UpdateProductBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        categorySlug:
+          type: string
+        imageUrl:
+          type: string
+          nullable: true
+        basePrice:
+          type: number
+        discountPrice:
+          type: number
+          nullable: true
+        minNegotiationPrice:
+          type: number
+          nullable: true
+        isNegotiable:
+          type: boolean
+        isVisible:
+          type: boolean
+        stockStatus:
+          type: string
+          enum: [in_stock, low_stock, out_of_stock]
+        notes:
+          type: string
+          nullable: true
+        bulkPricingNotes:
+          type: string
+          nullable: true
+
+    CategoryWithCount:
+      type: object
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        productCount:
+          type: integer
+      required:
+        - slug
+        - name
+        - productCount
+
+    ProductStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        visible:
+          type: integer
+        hidden:
+          type: integer
+        inStock:
+          type: integer
+        lowStock:
+          type: integer
+        outOfStock:
+          type: integer
+        negotiable:
+          type: integer
+        totalCategories:
+          type: integer
+      required:
+        - total
+        - visible
+        - hidden
+        - inStock
+        - lowStock
+        - outOfStock
+        - negotiable
+        - totalCategories
+
+    Quotation:
+      type: object
+      properties:
+        id:
+          type: integer
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        customerPhone:
+          type: string
+          nullable: true
+        company:
+          type: string
+          nullable: true
+        productIds:
+          type: array
+          items:
+            type: integer
+        message:
+          type: string
+        quantity:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, reviewed, responded, closed]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - customerName
+        - customerEmail
+        - message
+        - status
+        - productIds
+        - createdAt
+
+    CreateQuotationBody:
+      type: object
+      properties:
+        customerName:
+          type: string
+        customerEmail:
+          type: string
+        customerPhone:
+          type: string
+          nullable: true
+        company:
+          type: string
+          nullable: true
+        productIds:
+          type: array
+          items:
+            type: integer
+        message:
+          type: string
+        quantity:
+          type: string
+          nullable: true
+      required:
+        - customerName
+        - customerEmail
+        - message
+        - productIds
+
+    UpdateQuotationBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, reviewed, responded, closed]

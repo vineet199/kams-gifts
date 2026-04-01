@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Corporate Gifts Showcase"
+version = "1.0.0"
+id = "artifacts/corporate-gifts"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23045
+
+[services.development]
+run = "pnpm --filter @workspace/corporate-gifts run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/corporate-gifts", "run", "build" ]
+publicDir = "artifacts/corporate-gifts/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23045"
+BASE_PATH = "/"

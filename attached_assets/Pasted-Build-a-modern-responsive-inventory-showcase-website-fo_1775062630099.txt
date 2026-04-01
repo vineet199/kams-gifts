@@ -1,0 +1,65 @@
+Build a modern, responsive inventory showcase website for a business that sells corporate gifts, bags, stationery, and accessories.
+
+The website should have two main features:
+
+1) Inventory Showcase
+Create a clean catalog-style inventory page with category sections. Each category should be displayed as its own section, and each section should contain item cards underneath it. The categories are:
+
+- Flasks
+- Mug/Glass
+- Laptop Bags
+- Backpacks
+- Travel Bags
+- Table Clocks and Wall Clocks
+- Diaries
+- Calendars
+- Notebooks
+- Leather Wallets and Leather Bags
+- Pens and Pen Sets
+- Key Chains
+- Visiting Card Holders
+- Gift Sets
+- Novelties
+
+For each item card, show:
+- Item name
+- Optional image placeholder
+- Short description
+- Price
+- Stock status
+- Category label
+
+The layout should be visually organized, easy to browse, and mobile-friendly. Add search and category filtering so users can quickly find products.
+
+2) Price and Negotiation Setup
+Add a pricing and negotiation system for each item. Each product should have:
+- Base price
+- Discount price
+- Minimum negotiation price
+- Negotiation status toggle
+- Notes field for special pricing or bulk order terms
+
+Create a simple admin-style panel where the business can:
+- Add new products
+- Edit product details
+- Update prices
+- Set bulk pricing
+- Mark items as negotiable or fixed price
+- Hide/show products in the catalog
+
+Design requirements:
+- Use a professional business theme
+- Keep the UI clean, modern, and easy to use
+- Use cards, section headers, and clear spacing
+- Make the site responsive for desktop and mobile
+- Include a homepage with a strong hero section introducing the business
+- Add a contact section for inquiries and quotations
+
+Functional requirements:
+- Use sample product data for all categories
+- Support product listing by category
+- Support basic search and filter functions
+- Include a quotation/request form for customers to inquire about pricing
+- Make the code organized and easy to extend
+
+Build this as a polished business website that feels suitable for a corporate gifting and accessories showroom.

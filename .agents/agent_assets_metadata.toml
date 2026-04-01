@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "rxSojudnGtokm3lh7-B4X"
+uri = "file://artifacts/corporate-gifts/public/hero.png"
+type = "image"
+title = "Showroom hero image"
+
+[[generated]]
+id = "NdnsHSA_34uFqPwIdYv4w"
+uri = "file://artifacts/corporate-gifts/public/stationery.png"
+type = "image"
+title = "Stationery catalog placeholder"
+
+[[generated]]
+id = "TKPXdVGXJ9tg3axKdYzrJ"
+uri = "file://artifacts/corporate-gifts/public/bag.png"
+type = "image"
+title = "Bag catalog placeholder"
