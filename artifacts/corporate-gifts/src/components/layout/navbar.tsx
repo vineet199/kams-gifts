@@ -16,7 +16,7 @@ export function Navbar() {
               <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary text-primary-foreground transition-transform group-hover:scale-105">
                 <Package className="h-5 w-5" />
               </div>
-              <span className="font-serif text-xl font-bold tracking-tight text-primary">GiftPro</span>
+              <span className="font-sans text-xl font-bold tracking-tight text-primary">Kams Marketing</span>
             </Link>
           </div>
 

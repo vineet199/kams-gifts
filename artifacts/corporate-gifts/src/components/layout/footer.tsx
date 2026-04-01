@@ -11,7 +11,7 @@ export function Footer() {
               <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-secondary text-secondary-foreground">
                 <Package className="h-5 w-5" />
               </div>
-              <span className="font-serif text-2xl font-bold tracking-tight text-white">GiftPro</span>
+              <span className="font-sans text-2xl font-bold tracking-tight text-white">Kams Marketing</span>
             </Link>
             <p className="text-sm text-primary-foreground/70 max-w-xs leading-relaxed">
               Elevating corporate relationships through exceptionally crafted, thoughtfully curated gifts and accessories.
@@ -43,11 +43,11 @@ export function Footer() {
             <ul className="space-y-4 text-sm text-primary-foreground/70">
               <li className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-secondary shrink-0" />
-                <span>100 Corporate Plaza, Suite 400<br/>San Francisco, CA 94107</span>
+                <span>66/349/7, Mahakavi Bharathiyar Road,<br/>Ernakulam, Kochi - 682035</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-secondary shrink-0" />
-                <span>+1 (800) 555-0199</span>
+                <span>+91 9847177209</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-secondary shrink-0" />
@@ -58,7 +58,7 @@ export function Footer() {
         </div>
         
         <div className="mt-16 border-t border-primary-foreground/10 pt-8 text-center text-sm text-primary-foreground/50">
-          <p>&copy; {new Date().getFullYear()} GiftPro Corporate Gifting. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Kams Marketing Corporate Gifting. All rights reserved.</p>
         </div>
       </div>
     </footer>

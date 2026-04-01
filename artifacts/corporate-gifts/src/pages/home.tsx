@@ -189,7 +189,7 @@ export default function Home() {
         <section className="py-24 bg-background">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center max-w-[800px] mx-auto mb-16">
-              <h2 className="font-serif text-3xl font-bold tracking-tight text-primary sm:text-4xl">The GiftPro Experience</h2>
+              <h2 className="font-serif text-3xl font-bold tracking-tight text-primary sm:text-4xl">The Kams Marketing Experience</h2>
               <p className="mt-4 text-muted-foreground text-lg">A seamless process from selection to delivery, ensuring your corporate gifts make the perfect impression.</p>
             </div>
 

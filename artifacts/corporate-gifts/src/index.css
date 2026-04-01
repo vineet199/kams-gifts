@@ -127,8 +127,8 @@
   --chart-4: 210 40% 96%;
   --chart-5: 0 0% 100%;
 
-  --app-font-sans: 'Outfit', sans-serif;
-  --app-font-serif: 'Playfair Display', serif;
+  --app-font-sans: Arial, Helvetica, sans-serif;
+  --app-font-serif: Arial, Helvetica, sans-serif;
   --app-font-mono: 'Space Mono', monospace;
   
   --radius: 0.25rem;
