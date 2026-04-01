@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "rxSojudnGtokm3lh7-B4X"
@@ -18,3 +17,9 @@ id = "TKPXdVGXJ9tg3axKdYzrJ"
 uri = "file://artifacts/corporate-gifts/public/bag.png"
 type = "image"
 title = "Bag catalog placeholder"
+
+[[outputs]]
+id = "iaXMhxcSO6sq2kFJppViN"
+uri = "file://corporate-gifts.tar.gz"
+type = "unspecified"
+title = "Corporate Gifts Showcase — Source Code"
