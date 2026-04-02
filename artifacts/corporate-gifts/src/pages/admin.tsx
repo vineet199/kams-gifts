@@ -33,6 +33,9 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { SUPPORTED_CATEGORIES } from "@/lib/categories";
 
+const ADMIN_SESSION_KEY = "admin_unlocked";
+const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+
 // Schema for product form
 const productSchema = z.object({
   name: z.string().min(2),
@@ -52,7 +55,41 @@ type ProductFormValues = z.infer<typeof productSchema>;
 export default function Admin() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  
+  const [passwordInput, setPasswordInput] = useState("");
+  const [isUnlocked, setIsUnlocked] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem(ADMIN_SESSION_KEY) === "true";
+  });
+
+  const handleUnlock = () => {
+    if (!adminPassword) {
+      toast({
+        variant: "destructive",
+        title: "Admin password not configured",
+        description: "Set VITE_ADMIN_PASSWORD in your environment.",
+      });
+      return;
+    }
+
+    if (passwordInput === adminPassword) {
+      setIsUnlocked(true);
+      sessionStorage.setItem(ADMIN_SESSION_KEY, "true");
+      setPasswordInput("");
+      return;
+    }
+
+    toast({
+      variant: "destructive",
+      title: "Incorrect password",
+      description: "Please try again.",
+    });
+  };
+
+  const handleLock = () => {
+    setIsUnlocked(false);
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  };
+
   const { data: stats } = useGetProductStats();
   const { data: products } = useListProducts();
   const { data: quotations } = useListQuotations();
@@ -125,6 +162,41 @@ export default function Admin() {
       setSelectedImageFile(null);
     }
   }, [editingProductId, productList, form]);
+
+  if (!isUnlocked) {
+    return (
+      <div className="flex min-h-[100dvh] flex-col bg-muted/30">
+        <Navbar />
+        <main className="flex-1 p-6 md:p-8">
+          <div className="mx-auto max-w-md">
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Access</CardTitle>
+                <CardDescription>Enter the admin password to continue.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="Enter admin password"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleUnlock();
+                    }
+                  }}
+                />
+                <Button className="w-full" onClick={handleUnlock}>
+                  Unlock Admin
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   const onProductSubmit = async (values: ProductFormValues) => {
     // Find category name from slug
@@ -221,25 +293,27 @@ export default function Admin() {
       
       <main className="flex-1 p-6 md:p-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-8 flex items-center justify-between">
+          <div className="mb-8 flex items-center justify-between gap-4">
             <div>
               <h1 className="font-serif text-3xl font-bold text-primary">Admin Dashboard</h1>
               <p className="text-muted-foreground mt-1">Manage inventory, catalog, and customer inquiries.</p>
             </div>
-            
-            <Dialog open={isProductModalOpen} onOpenChange={(open) => {
-              setIsProductModalOpen(open);
-              if (!open) setEditingProductId(null);
-            }}>
-              <DialogTrigger asChild>
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Plus className="mr-2 h-4 w-4" /> Add Product
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{editingProductId ? "Edit Product" : "Add New Product"}</DialogTitle>
-                </DialogHeader>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="outline" onClick={handleLock}>Logout</Button>
+              
+              <Dialog open={isProductModalOpen} onOpenChange={(open) => {
+                setIsProductModalOpen(open);
+                if (!open) setEditingProductId(null);
+              }}>
+                <DialogTrigger asChild>
+                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Plus className="mr-2 h-4 w-4" /> Add Product
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{editingProductId ? "Edit Product" : "Add New Product"}</DialogTitle>
+                  </DialogHeader>
                 
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onProductSubmit)} className="space-y-4 pt-4">
@@ -267,13 +341,13 @@ export default function Admin() {
 
                     <div className="grid grid-cols-3 gap-4">
                       <FormField control={form.control} name="basePrice" render={({ field }) => (
-                        <FormItem><FormLabel>Base Price ($)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Base Price (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={form.control} name="discountPrice" render={({ field }) => (
-                        <FormItem><FormLabel>Discount Price ($)</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Discount Price (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                       )} />
                       <FormField control={form.control} name="minNegotiationPrice" render={({ field }) => (
-                        <FormItem><FormLabel>Min Negotiable ($)</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Min Negotiable (₹)</FormLabel><FormControl><Input type="number" step="0.01" {...field} value={field.value || ''} /></FormControl><FormMessage /></FormItem>
                       )} />
                     </div>
 
@@ -292,9 +366,23 @@ export default function Admin() {
                           <FormMessage />
                         </FormItem>
                       )} />
+                      <FormField control={form.control} name="imageUrl" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Product Image URL (Optional)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="url"
+                              placeholder="https://example.com/product-image.jpg"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
                       <FormField control={form.control} name="imageUrl" render={() => (
                         <FormItem>
-                          <FormLabel>Product Image (Optional)</FormLabel>
+                          <FormLabel>Or Upload Product Image</FormLabel>
                           <FormControl>
                             <Input
                               type="file"
@@ -332,8 +420,9 @@ export default function Admin() {
                     </div>
                   </form>
                 </Form>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
           {/* Stats Overview */}
@@ -412,8 +501,8 @@ export default function Admin() {
                           </TableCell>
                           <TableCell><Badge variant="outline">{product.category}</Badge></TableCell>
                           <TableCell>
-                            <div>${product.basePrice.toFixed(2)}</div>
-                            {product.discountPrice && <div className="text-xs text-muted-foreground line-through">${product.discountPrice.toFixed(2)}</div>}
+                            <div>₹{product.basePrice.toFixed(2)}</div>
+                            {product.discountPrice && <div className="text-xs text-muted-foreground line-through">₹{product.discountPrice.toFixed(2)}</div>}
                           </TableCell>
                           <TableCell>
                             {product.stockStatus === 'in_stock' ? <span className="text-emerald-600 text-sm">In Stock</span> : 
