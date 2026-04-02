@@ -30,6 +30,8 @@ const toNum = (value: string | number) => {
 };
 
 const formatMoney = (n: number) => n.toFixed(2);
+const DEFAULT_SIGNATURE_STATIC_URL = "/signature.svg";
+const DEFAULT_STAMP_STATIC_URL = "/stamp.png";
 
 const numberToWords = (num: number): string => {
   if (!Number.isFinite(num)) return "Zero Rupees Only";
@@ -72,8 +74,29 @@ export function InvoiceModal({ open, onOpenChange }: InvoiceModalProps) {
   const [docType, setDocType] = useState("original");
   const [reverseCharge, setReverseCharge] = useState(false);
   const [gstReverseCharge, setGstReverseCharge] = useState(false);
-  const [signatureFile, setSignatureFile] = useState("");
-  const [stampFile, setStampFile] = useState("");
+  const [useStaticSignature, setUseStaticSignature] = useState(true);
+  const [useStaticStamp, setUseStaticStamp] = useState(true);
+  const [staticSignatureUrl, setStaticSignatureUrl] = useState(
+    import.meta.env.VITE_INVOICE_SIGNATURE_STATIC_URL || DEFAULT_SIGNATURE_STATIC_URL
+  );
+  const [staticStampUrl, setStaticStampUrl] = useState(
+    import.meta.env.VITE_INVOICE_STAMP_STATIC_URL || DEFAULT_STAMP_STATIC_URL
+  );
+  const [signatureImageSrc, setSignatureImageSrc] = useState("");
+  const [stampImageSrc, setStampImageSrc] = useState("");
+
+  const readImageAsDataUrl = (file: File, onLoad: (src: string) => void) => {
+    const reader = new FileReader();
+    reader.onload = () => onLoad(typeof reader.result === "string" ? reader.result : "");
+    reader.onerror = () => {
+      toast({
+        variant: "destructive",
+        title: "Could not read image",
+        description: "Please try uploading the image again.",
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const [invoice, setInvoice] = useState({
     companyName: "KAMS Marketing",
@@ -184,6 +207,17 @@ export function InvoiceModal({ open, onOpenChange }: InvoiceModalProps) {
   };
 
   const getInvoiceHtml = () => {
+    const resolvedStaticSignature = staticSignatureUrl.trim() || DEFAULT_SIGNATURE_STATIC_URL;
+    const resolvedStaticStamp = staticStampUrl.trim() || DEFAULT_STAMP_STATIC_URL;
+    const signatureSource = useStaticSignature ? resolvedStaticSignature : signatureImageSrc;
+    const stampSource = useStaticStamp ? resolvedStaticStamp : stampImageSrc;
+    const signatureContent = signatureSource
+      ? `<img src="${signatureSource}" alt="Authorized Signature" style="max-height:70px; max-width:200px; object-fit:contain;" />`
+      : "________________";
+    const stampContent = stampSource
+      ? `<img src="${stampSource}" alt="Company Stamp" style="max-height:70px; max-width:200px; object-fit:contain;" />`
+      : "(optional)";
+
     const lines = rows
       .map(
         (r, i) => `<tr>
@@ -263,8 +297,8 @@ export function InvoiceModal({ open, onOpenChange }: InvoiceModalProps) {
           </div>
           <div class="box"><b>Declaration:</b> Certified that the particulars given above are true and correct.</div>
           <div class="grid" style="margin-top:14px;">
-            <div>Authorized Signatory: ${signatureFile || "________________"}</div>
-            <div style="text-align:right;">Company Stamp: ${stampFile || "(optional)"}</div>
+            <div>Authorized Signatory:<br/>${signatureContent}</div>
+            <div style="text-align:right;">Company Stamp:<br/>${stampContent}</div>
           </div>
         </body>
       </html>
@@ -509,15 +543,78 @@ export function InvoiceModal({ open, onOpenChange }: InvoiceModalProps) {
             <h3 className="font-semibold">10. Footer</h3>
             <p>Declaration Text: "Certified that the particulars given above are true and correct"</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Authorized Signatory (upload)</Label>
-                <Input type="file" accept="image/*" onChange={(e) => setSignatureFile(e.target.files?.[0]?.name || "")} />
-                <p className="text-xs text-muted-foreground mt-1">{signatureFile || "No signature uploaded"}</p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Authorized Signatory</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Use static image</span>
+                    <Switch checked={useStaticSignature} onCheckedChange={setUseStaticSignature} />
+                  </div>
+                </div>
+                {useStaticSignature ? (
+                  <>
+                    <Input
+                      placeholder="/signature.png or https://..."
+                      value={staticSignatureUrl}
+                      onChange={(e) => setStaticSignatureUrl(e.target.value)}
+                    />
+                  </>
+                ) : (
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) readImageAsDataUrl(file, setSignatureImageSrc);
+                    }}
+                  />
+                )}
+                {(useStaticSignature ? staticSignatureUrl : signatureImageSrc) ? (
+                  <img
+                    src={(useStaticSignature ? staticSignatureUrl.trim() || DEFAULT_SIGNATURE_STATIC_URL : signatureImageSrc)}
+                    alt="Signature preview"
+                    className="h-16 w-auto rounded border p-1 bg-white"
+                  />
+                ) : (
+                  <p className="text-xs text-muted-foreground">No signature selected</p>
+                )}
               </div>
-              <div>
-                <Label>Company Stamp (optional upload)</Label>
-                <Input type="file" accept="image/*" onChange={(e) => setStampFile(e.target.files?.[0]?.name || "")} />
-                <p className="text-xs text-muted-foreground mt-1">{stampFile || "No stamp uploaded"}</p>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Company Stamp</Label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Use static image</span>
+                    <Switch checked={useStaticStamp} onCheckedChange={setUseStaticStamp} />
+                  </div>
+                </div>
+                {useStaticStamp ? (
+                  <>
+                    <Input
+                      placeholder="/stamp.png or https://..."
+                      value={staticStampUrl}
+                      onChange={(e) => setStaticStampUrl(e.target.value)}
+                    />
+                  </>
+                ) : (
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) readImageAsDataUrl(file, setStampImageSrc);
+                    }}
+                  />
+                )}
+                {(useStaticStamp ? staticStampUrl : stampImageSrc) ? (
+                  <img
+                    src={(useStaticStamp ? staticStampUrl.trim() || DEFAULT_STAMP_STATIC_URL : stampImageSrc)}
+                    alt="Stamp preview"
+                    className="h-16 w-auto rounded border p-1 bg-white"
+                  />
+                ) : (
+                  <p className="text-xs text-muted-foreground">No stamp selected</p>
+                )}
               </div>
             </div>
           </section>
