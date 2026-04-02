@@ -41,11 +41,17 @@ jobs:
           PORT: "3000"
           # Custom domain is configured, so serve from root path
           BASE_PATH: "/"
-          VITE_ADMIN_PASSWORD: ${{ secrets.VITE_ADMIN_PASSWORD }}
+          # Accept either GitHub Secret or Repository Variable as fallback
+          VITE_ADMIN_PASSWORD: ${{ secrets.VITE_ADMIN_PASSWORD || vars.VITE_ADMIN_PASSWORD }}
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUPABASE_STORAGE_BUCKET: ${{ secrets.VITE_SUPABASE_STORAGE_BUCKET }}
-        run: pnpm build
+        run: |
+          if [ -z "$VITE_ADMIN_PASSWORD" ]; then
+            echo "❌ VITE_ADMIN_PASSWORD is empty. Set it in Repository Settings → Secrets and variables."
+            exit 1
+          fi
+          pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
