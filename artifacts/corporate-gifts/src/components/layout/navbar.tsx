@@ -1,8 +1,8 @@
 import { Link } from "wouter";
-import { Package, Menu, Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { BrandIcon } from "./brand-icon";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,8 +13,8 @@ export function Navbar() {
         <div className="flex h-20 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-sm bg-primary text-primary-foreground transition-transform group-hover:scale-105">
-                <Package className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center text-primary transition-transform group-hover:scale-105">
+                <BrandIcon className="h-6 w-6" />
               </div>
               <span className="font-sans text-xl font-bold tracking-tight text-primary">Kams Marketing</span>
             </Link>

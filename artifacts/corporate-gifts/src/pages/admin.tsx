@@ -21,17 +21,19 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Package, TrendingUp, Users, Eye, EyeOff, Edit, Trash2, Plus, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Package, Users, Eye, EyeOff, Edit, Trash2, Plus, AlertCircle, CheckCircle2, FileText } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { SUPPORTED_CATEGORIES } from "@/lib/categories";
+import { InvoiceModal } from "@/components/admin/invoice-modal";
 
 const ADMIN_SESSION_KEY = "admin_unlocked";
 const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
@@ -112,6 +114,7 @@ export default function Admin() {
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -287,6 +290,10 @@ export default function Admin() {
     }
   };
 
+  const openInvoiceModal = () => {
+    setIsInvoiceModalOpen(true);
+  };
+
   return (
     <div className="flex min-h-[100dvh] flex-col bg-muted/30">
       <Navbar />
@@ -300,6 +307,9 @@ export default function Admin() {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <Button variant="outline" onClick={handleLock}>Logout</Button>
+              <Button variant="outline" onClick={openInvoiceModal}>
+                <FileText className="mr-2 h-4 w-4" /> Create Invoice
+              </Button>
               
               <Dialog open={isProductModalOpen} onOpenChange={(open) => {
                 setIsProductModalOpen(open);
@@ -606,6 +616,8 @@ export default function Admin() {
               </Card>
             </TabsContent>
           </Tabs>
+
+          <InvoiceModal open={isInvoiceModalOpen} onOpenChange={setIsInvoiceModalOpen} />
         </div>
       </main>
     </div>

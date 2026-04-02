@@ -39,9 +39,8 @@ jobs:
         working-directory: artifacts/corporate-gifts
         env:
           PORT: "3000"
-          # For GitHub Pages, the site is served from /<repo-name>/
-          # Change to "/" if using a custom domain or username.github.io root repo
-          BASE_PATH: "/${{ github.event.repository.name }}/"
+          # Custom domain is configured, so serve from root path
+          BASE_PATH: "/"
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SUPABASE_STORAGE_BUCKET: ${{ secrets.VITE_SUPABASE_STORAGE_BUCKET }}

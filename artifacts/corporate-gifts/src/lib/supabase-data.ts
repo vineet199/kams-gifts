@@ -344,3 +344,27 @@ export async function uploadProductImage(file: File): Promise<string> {
 
   return publicUrl;
 }
+
+export async function saveInvoiceRecord(input: {
+  invoiceNumber: string;
+  invoiceDate: string;
+  customerName: string;
+  totalAmount: number;
+  payload: Record<string, unknown>;
+}) {
+  const sb = getSupabaseClient();
+  const { data, error } = await sb
+    .from("invoices")
+    .insert({
+      invoice_number: input.invoiceNumber,
+      invoice_date: input.invoiceDate,
+      customer_name: input.customerName || null,
+      total_amount: input.totalAmount,
+      payload: input.payload,
+    })
+    .select("id")
+    .single();
+
+  if (error) throw error;
+  return data;
+}
